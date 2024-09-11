@@ -8,6 +8,10 @@ Main model: `math_expression_recognizer.keras`
 
 Extra model (irrelevant): `digit_recognizer.keras` trained on MNIST datasets
 
-![training result](./done_training.png)
+Train the model: `train.py`
 
-![test 1](./demo_1.png)
+Run the model: `run_model.py`
+
+![training result](./readme_assets/done_training.png)
+
+![test 1](./readme_assets/demo_1.png)
