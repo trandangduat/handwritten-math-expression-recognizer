@@ -9,3 +9,5 @@ Main model: `math_expression_recognizer.keras`
 Extra model (irrelevant): `digit_recognizer.keras` trained on MNIST datasets
 
 ![training result](./done_training.png)
+
+![test 1](./demo_1.png)
