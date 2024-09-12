@@ -5,11 +5,12 @@ import matplotlib.pyplot as plt
 from PIL import Image
 from skimage.morphology import thin
 from skimage.util import invert
+import cv2
 
 math_exp = [ '!', '(', ')', '+', '-', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '=', 'X', 'cos', 'div', 'i', 'j', 'k', 'log', 'pi', 'sin', 'sqrt', 'tan', 'times', 'u', 'v', 'y', 'z' ];
 
-def preprocess_image(image_path):
-    img = Image.open(image_path)
+def preprocess_image(img): # preprocess image with single expression
+    img = Image.fromarray(img) # convert cv2 to PIL
     img = img.convert('L')
     img = img.resize((45, 45))
     img_array = np.array(img) / 255.0
@@ -19,18 +20,57 @@ def preprocess_image(image_path):
     img_array = img_array.reshape((1, 45, 45, 1))
     return invert(img_array)
 
-# Load the model
-model = load_model("math_expression_recognizer.keras")
+def show_images(images):
+    fig = plt.figure()
+    n = len(images)
+    for i in range(n):
+        fig.add_subplot(1, n, i+1)
+        plt.imshow(images[i], cmap='gray')
+    plt.show()
+    return 0
 
-# Load and preprocess test image
-test_image = preprocess_image("test.jpg")
+def extract_expressions(image):
+    img_gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+    ret, im = cv2.threshold(img_gray, 125, 255, cv2.THRESH_BINARY_INV)
+    contours, hierarchy = cv2.findContours(im, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 
-# Make a prediction on a test image
-predictions = model.predict(test_image)
-predicted_class = np.argmax(predictions)
-print(predictions)
+    boundingBoxes = []
+    expressions = []
 
-# Display the image and prediction
-plt.imshow(test_image.reshape(45, 45), cmap='gray')
-plt.title(f"Predicted: {math_exp[predicted_class]}")
-plt.show()
+    # Get bounding boxes of contours
+    for contour in contours:
+        x,y,w,h = cv2.boundingRect(contour)
+        boundingBoxes.append((x,y,w,h))
+
+    boundingBoxes = sorted(boundingBoxes, key=lambda x: x[0]) # sort by x position
+
+    for box in boundingBoxes:
+        x,y,w,h = box
+        expressions.append(image[y:y+h, x:x+w])
+
+    show_images(expressions)
+    return expressions
+
+
+def main():
+    # Load the model
+    model = load_model("math_expression_recognizer.keras")
+
+    image = cv2.imread('test2.png')
+    expressions = extract_expressions(image)
+
+    for expr in expressions:
+        # Load and preprocess test image
+        test_image = preprocess_image(expr)
+
+        # Make a prediction on a test image
+        predictions = model.predict(test_image)
+        predicted_class = np.argmax(predictions)
+        print(predictions)
+
+        # Display the image and prediction
+        plt.imshow(test_image.reshape(45, 45), cmap='gray')
+        plt.title(f"Predicted: {math_exp[predicted_class]}")
+        plt.show()
+
+main()

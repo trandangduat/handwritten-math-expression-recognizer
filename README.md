@@ -15,3 +15,5 @@ Run the model: `run_model.py`
 ![training result](./readme_assets/done_training.png)
 
 ![test 1](./readme_assets/demo_1.png)
+
+![segmenting](./readme_assets/segmenting.png)
