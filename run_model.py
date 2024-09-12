@@ -44,8 +44,18 @@ def extract_expressions(image):
 
     boundingBoxes = sorted(boundingBoxes, key=lambda x: x[0]) # sort by x position
 
+    # Find all the cases where equal (=) splits into two minus (-) and merge them
+    for i in range(1, len(boundingBoxes)):
+        x, y, w, h = boundingBoxes[i]
+        prev_x, prev_y, prev_w, prev_h = boundingBoxes[i-1]
+        if (x < prev_x + prev_w // 2):
+            boundingBoxes[i-1] = (prev_x, min(y, prev_y), x + w - prev_x, max(y + h, prev_y + prev_h) - min(y, prev_y))
+            boundingBoxes[i] = (0, 0, 0, 0)
+
     for box in boundingBoxes:
         x,y,w,h = box
+        if (w == 0 or h == 0):
+            continue
         cropped_expression = image[y:y+h, x:x+w]
         # Padding the cropped image to make it square
         max_dim = max(w, h)
@@ -61,7 +71,7 @@ def main():
     # Load the model
     model = load_model("math_expression_recognizer.keras")
 
-    image = cv2.imread('test2.png')
+    image = cv2.imread('test3.png')
     expressions = extract_expressions(image)
 
     for expr in expressions:
