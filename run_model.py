@@ -2,7 +2,7 @@ import tensorflow as tf
 from tensorflow.keras.models import load_model
 import numpy as np
 import matplotlib.pyplot as plt
-from PIL import Image
+from PIL import Image, ImageFilter
 from skimage.morphology import thin
 from skimage.util import invert
 import cv2
@@ -46,7 +46,12 @@ def extract_expressions(image):
 
     for box in boundingBoxes:
         x,y,w,h = box
-        expressions.append(image[y:y+h, x:x+w])
+        cropped_expression = image[y:y+h, x:x+w]
+        # Padding the cropped image to make it square
+        max_dim = max(w, h)
+        expression = np.ones((max_dim, max_dim, 3), np.uint8) * 255 # create white bg with size max_dim
+        expression[(max_dim-h)//2:(max_dim-h)//2+h, (max_dim-w)//2:(max_dim-w)//2+w] = cropped_expression # Put the cropped image in the center of the white bg
+        expressions.append(expression)
 
     show_images(expressions)
     return expressions
