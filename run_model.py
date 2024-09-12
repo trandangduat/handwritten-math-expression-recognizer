@@ -71,7 +71,7 @@ def main():
     # Load the model
     model = load_model("math_expression_recognizer.keras")
 
-    image = cv2.imread('test3.png')
+    image = cv2.imread('test6.png')
     expressions = extract_expressions(image)
 
     for expr in expressions:
