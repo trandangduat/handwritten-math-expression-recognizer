@@ -69,9 +69,9 @@ def extract_expressions(image):
 
 def main():
     # Load the model
-    model = load_model("math_expression_recognizer.keras")
+    model = load_model("google_colab_model/math_expression_recognizer.keras")
 
-    image = cv2.imread('test6.png')
+    image = cv2.imread('test2.png')
     expressions = extract_expressions(image)
 
     for expr in expressions:
